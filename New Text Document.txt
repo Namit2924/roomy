@@ -1,0 +1,29 @@
+user
+namit1
+namit1@gmail.com
+pass-namit123
+
+owner
+raj
+raj@gmail.com
+raj123
+
+
+CLOUDINARY_CLOUD_NAME=dk4yx43ng
+CLOUDINARY_API_KEY=581715256773938
+CLOUDINARY_API_SECRET=u7UGEjPhN21TpUW6qD24QesUTbw
+
+
+🧠 Next Level (Optional but Powerful)
+
+If you want to go next level developer, we can add:
+
+🔔 Real-time notifications (Socket.io)
+
+💬 Chat between user & owner
+
+📍 Google Maps integration
+
+⭐ Reviews & ratings
+
+🔐 OTP login (Firebase)   rember this point for update
