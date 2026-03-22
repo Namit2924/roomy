@@ -1,16 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import API from "../services/api";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 function Listings() {
+  const [searchParams] = useSearchParams();
+
   const [pgs, setPgs] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [searchCity, setSearchCity] = useState("");
-  const [searchArea, setSearchArea] = useState("");
-  const [genderFilter, setGenderFilter] = useState("all");
-  const [maxPrice, setMaxPrice] = useState("");
   const [error, setError] = useState("");
+
+  const [searchCity, setSearchCity] = useState(searchParams.get("city") || "");
+  const [searchArea, setSearchArea] = useState("");
+  const [genderFilter, setGenderFilter] = useState(
+    searchParams.get("gender") || "all"
+  );
+  const [maxPrice, setMaxPrice] = useState(
+    searchParams.get("budget") === "low" ? "5000" : ""
+  );
+
   const fetchPgs = async () => {
     try {
       const res = await API.get("/pgs");
@@ -18,6 +25,7 @@ function Listings() {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching PGs:", error);
+      setError("Failed to load PG listings");
       setLoading(false);
     }
   };
@@ -29,7 +37,7 @@ function Listings() {
   const filteredPgs = useMemo(() => {
     return pgs.filter((pg) => {
       const matchesCity = pg.city
-        .toLowerCase()
+        ?.toLowerCase()
         .includes(searchCity.toLowerCase());
 
       const matchesArea = (pg.area || "")
@@ -53,26 +61,21 @@ function Listings() {
     setMaxPrice("");
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="container">
-  //       <h2 className="page-title">Loading PG listings...</h2>
-  //     </div>
-  //   );
-  // }
   if (loading) {
-  return (
-    <div className="container card-grid">
-      {[...Array(6)].map((_, i) => (
-        <div className="skeleton-card" key={i}></div>
-      ))}
-    </div>
-  );
-}
+    return (
+      <div className="container card-grid">
+        {[...Array(6)].map((_, i) => (
+          <div className="skeleton-card" key={i}></div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="container">
       <h2 className="page-title">Available PG Listings</h2>
+
+      {error && <p className="error-message">{error}</p>}
 
       <div className="filter-box">
         <div className="filter-grid">

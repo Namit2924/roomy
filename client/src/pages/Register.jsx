@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
-
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 function Register() {
   const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ function Register() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -80,16 +80,23 @@ function Register() {
           />
         </div>
 
-        <div className="form-group">
-          <input
-            type="password"
-            name="password"
-            placeholder="Enter password"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
+        <div className="password-input-wrapper">
+  <input
+    type={showPassword ? "text" : "password"}
+    name="password"
+    placeholder="Enter password"
+    value={formData.password}
+    onChange={handleChange}
+    disabled={loading}
+    autoComplete="new-password"
+  />
+  <span
+    className="password-toggle-icon"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+    {showPassword ? <FaEyeSlash /> : <FaEye />}
+  </span>
+</div>
 
         <div className="form-group">
           <input

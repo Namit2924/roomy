@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import socket from "../socket";
 
 function OwnerBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-
+const { user } = useAuth();
   const fetchBookings = async () => {
     try {
       const res = await API.get("/bookings/owner");
@@ -20,6 +22,20 @@ function OwnerBookings() {
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  useEffect(() => {
+  if (!user) return;
+
+  socket.emit("joinUserRoom", user._id);
+
+  socket.on("newBookingNotification", () => {
+    fetchBookings();
+  });
+
+  return () => {
+    socket.off("newBookingNotification");
+  };
+}, [user]);
 
   const updateStatus = async (id, status) => {
     try {

@@ -69,15 +69,40 @@ function Chatbot() {
     setInput("");
   };
 
+  const handleQuickMessage = (text) => {
+  setInput(text);
+};
+
   return (
     <>
       <button className="chatbot-toggle" onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? "Close Chat" : "Chat"}
-      </button>
+  <img
+    src="https://dummyimage.com/60x60/2563eb/ffffff&text=AI"
+    alt="Assistant"
+    className="chatbot-avatar"
+  />
+  {/* <span className="chatbot-label">Roomy Assistant</span> */}
+</button>
 
       {isOpen && (
         <div className="chatbot-box">
-          <div className="chatbot-header">Roomy Assistant</div>
+          <div className="chatbot-header">
+  <div className="chatbot-header-left">
+    <img
+      src="https://dummyimage.com/50x50/2563eb/ffffff&text=AI"
+      alt="Assistant"
+      className="chatbot-header-avatar"
+    />
+    <div>
+      <h4>Roomy Assistant</h4>
+      <p>Online now</p>
+    </div>
+  </div>
+
+  <button className="chatbot-close" onClick={() => setIsOpen(false)}>
+    ×
+  </button>
+</div>
 
           <div className="chatbot-messages">
             {messages.map((msg, index) => (
@@ -93,6 +118,18 @@ function Chatbot() {
               </div>
             ))}
           </div>
+
+          <div className="chatbot-quick-actions">
+  <button onClick={() => handleQuickMessage("Show PGs in Pune")}>
+    Pune PGs
+  </button>
+  <button onClick={() => handleQuickMessage("Budget PGs under 5000")}>
+    Budget PGs
+  </button>
+  <button onClick={() => handleQuickMessage("How to contact owner?")}>
+    Contact Owner
+  </button>
+</div>
 
           <div className="chatbot-input-area">
             <input

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import socket from "../socket";
 
 function Bookings() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [liveMessage, setLiveMessage] = useState("");
 
   const fetchBookings = async () => {
     if (!user) {
@@ -44,6 +46,21 @@ function Bookings() {
   return () => clearInterval(interval);
 }, [user]);
 
+useEffect(() => {
+  if (!user) return;
+
+  socket.emit("joinUserRoom", user._id);
+
+  socket.on("bookingStatusUpdated", (data) => {
+    setLiveMessage(data.text);
+    fetchBookings();
+  });
+
+  return () => {
+    socket.off("bookingStatusUpdated");
+  };
+}, [user]);
+
   if (!user) {
     return (
       <div className="container">
@@ -72,7 +89,7 @@ function Bookings() {
   return (
     <div className="container">
       <h2 className="page-title">My Bookings</h2>
-
+      {liveMessage && <p className="success-message">{liveMessage}</p>}
       {bookings.length === 0 ? (
         <div className="empty-state">
   <h2>No PGs found 😔</h2>

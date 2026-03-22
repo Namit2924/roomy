@@ -13,6 +13,11 @@ import OwnerBookings from "./pages/OwnerBookings";
 import OwnerAnalytics from "./pages/OwnerAnalytics";
 import Wishlist from "./pages/Wishlist";
 import Profile from "./pages/Profile";
+import Inbox from "./pages/Inbox";
+import OtpLogin from "./pages/OtpLogin";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+
 function App() {
   return (
     <BrowserRouter>
@@ -29,6 +34,10 @@ function App() {
         <Route path="/owner-bookings" element={<OwnerBookings />} />
         <Route path="/owner-analytics" element={<OwnerAnalytics />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/inbox" element={<Inbox />} />
+        <Route path="/otp-login" element={<OtpLogin />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 

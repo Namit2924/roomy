@@ -9,7 +9,7 @@ const createBooking = async (req, res) => {
       return res.status(400).json({ message: "Missing booking details" });
     }
 
-    const pgData = await Pg.findById(pg);
+    const pgData = await Pg.findById(pg).populate("owner", "name");
 
     if (!pgData) {
       return res.status(404).json({ message: "PG not found" });
@@ -37,12 +37,21 @@ const createBooking = async (req, res) => {
     pgData.availableRooms -= quantity;
     await pgData.save();
 
+    if (global.io && pgData.owner?._id) {
+      global.io.to(pgData.owner._id.toString()).emit("newBookingNotification", {
+        text: `New booking request for ${pgData.title}`,
+        pgId: pgData._id,
+        bookingId: booking._id,
+      });
+    }
+
     res.status(201).json({
       message: "Booking request sent to owner",
       booking,
       updatedAvailableRooms: pgData.availableRooms,
     });
   } catch (error) {
+    console.error("createBooking error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -51,11 +60,12 @@ const getUserBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user._id }).populate(
       "pg",
-      "title location city price images"
+      "title location city area price images"
     );
 
     res.status(200).json(bookings);
   } catch (error) {
+    console.error("getUserBookings error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -71,6 +81,7 @@ const getOwnerBookings = async (req, res) => {
 
     res.status(200).json(bookings);
   } catch (error) {
+    console.error("getOwnerBookings error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -102,11 +113,20 @@ const updateBookingStatus = async (req, res) => {
     booking.status = status;
     await booking.save();
 
+    if (global.io) {
+      global.io.to(booking.user.toString()).emit("bookingStatusUpdated", {
+        text: `Your booking was ${status}`,
+        bookingId: booking._id,
+        status,
+      });
+    }
+
     res.status(200).json({
       message: `Booking ${status} successfully`,
       booking,
     });
   } catch (error) {
+    console.error("updateBookingStatus error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -152,6 +172,7 @@ const getOwnerAnalytics = async (req, res) => {
       totalBookedRooms,
     });
   } catch (error) {
+    console.error("getOwnerAnalytics error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -168,6 +189,7 @@ const getOwnerPendingCount = async (req, res) => {
 
     res.status(200).json({ pendingCount });
   } catch (error) {
+    console.error("getOwnerPendingCount error:", error);
     res.status(500).json({ message: error.message });
   }
 };
