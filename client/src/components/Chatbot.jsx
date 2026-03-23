@@ -81,7 +81,7 @@ function Chatbot() {
     alt="R"
     className="chatbot-avatar"
   />
-  {/* <span className="chatbot-label">Roomy Assistant</span> */}
+  <span className="chatbot-label">Roomy Assistant</span>
 </button>
 
       {isOpen && (
