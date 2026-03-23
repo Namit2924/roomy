@@ -2,7 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const {Resend} = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Register
 const registerUser = async (req, res) => {
@@ -134,6 +136,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
+//forgot password
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -163,16 +166,8 @@ const forgotPassword = async (req, res) => {
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${rawToken}`;
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+   await resend.emails.send({
+      from: process.env.EMAIL_FROM,
       to: user.email,
       subject: "Roomy Password Reset",
       html: `
@@ -187,10 +182,13 @@ const forgotPassword = async (req, res) => {
       message: "If this email exists, a reset link has been sent",
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Forgot password error:", error);
+    res.status(500).json({ 
+      message: "Unable to process your request at the moment. Please try again later." });
   }
 };
 
+//reset password
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
