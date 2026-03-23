@@ -77,7 +77,7 @@ function Chatbot() {
     <>
       <button className="chatbot-toggle" onClick={() => setIsOpen(!isOpen)}>
   <img
-    src="https://dummyimage.com/60x60/2563eb/ffffff&text=AI"
+    src="client/public/Assistant.jpg"
     alt="Assistant"
     className="chatbot-avatar"
   />
