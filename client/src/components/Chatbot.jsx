@@ -78,7 +78,7 @@ function Chatbot() {
       <button className="chatbot-toggle" onClick={() => setIsOpen(!isOpen)}>
   <img
     src="client\public\Assistant.jpg"
-    alt="Assistant"
+    alt="R"
     className="chatbot-avatar"
   />
   {/* <span className="chatbot-label">Roomy Assistant</span> */}
@@ -90,7 +90,7 @@ function Chatbot() {
   <div className="chatbot-header-left">
     <img
       src="client\public\Assistant.jpg"
-      alt="Assistant"
+      alt="R"
       className="chatbot-header-avatar"
     />
     <div>
