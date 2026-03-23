@@ -17,8 +17,20 @@ const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
-app.use(cors({
-  origin:"https://roomy-ecru.vercel.app",
+const allowedOrigins = [
+  "https://roomy-ecru.vercel.app",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 
@@ -41,8 +53,12 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173", 
+      "https://roomy-ecru.vercel.app"
+    ],
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
