@@ -89,7 +89,7 @@ function Chatbot() {
           <div className="chatbot-header">
   <div className="chatbot-header-left">
     <img
-      src="https://dummyimage.com/50x50/2563eb/ffffff&text=AI"
+      src="client\public\Assistant.jpg"
       alt="Assistant"
       className="chatbot-header-avatar"
     />
