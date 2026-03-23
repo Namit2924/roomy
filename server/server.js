@@ -57,7 +57,7 @@ const io = new Server(server, {
       "http://localhost:5173", 
       "https://roomy-ecru.vercel.app"
     ],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST","PUT", "DELETE"],
     credentials: true,
   },
 });

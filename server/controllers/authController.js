@@ -1,10 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 const crypto = require("crypto");
-const {Resend} = require("resend");
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const User = require("../models/User");
+const sendEmail = require("../utils/sendEmail");
 
 // Register
 const registerUser = async (req, res) => {
@@ -94,7 +92,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Get logged-in user profile
+// Get profile
 const getProfile = async (req, res) => {
   try {
     res.status(200).json(req.user);
@@ -103,7 +101,7 @@ const getProfile = async (req, res) => {
   }
 };
 
-// Update logged-in user profile
+// Update profile
 const updateProfile = async (req, res) => {
   try {
     const { name, phone, photo } = req.body;
@@ -136,7 +134,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-//forgot password
+// Forgot password
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -147,7 +145,7 @@ const forgotPassword = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // Generic message for security
+    // Generic response for security
     if (!user) {
       return res.status(200).json({
         message: "If this email exists, a reset link has been sent",
@@ -161,20 +159,23 @@ const forgotPassword = async (req, res) => {
       .digest("hex");
 
     user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 min
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${rawToken}`;
 
-   await resend.emails.send({
-      from: process.env.EMAIL_FROM,
+    await sendEmail({
       to: user.email,
       subject: "Roomy Password Reset",
       html: `
         <h2>Password Reset</h2>
+        <p>Hello ${user.name},</p>
         <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}">${resetLink}</a>
+        <p>
+          <a href="${resetLink}" target="_blank">${resetLink}</a>
+        </p>
         <p>This link will expire in 15 minutes.</p>
+        <p>If you did not request this, please ignore this email.</p>
       `,
     });
 
@@ -182,13 +183,14 @@ const forgotPassword = async (req, res) => {
       message: "If this email exists, a reset link has been sent",
     });
   } catch (error) {
-    console.error("Forgot password error:", error);
-    res.status(500).json({ 
-      message: "Unable to process your request at the moment. Please try again later." });
+    console.error("forgotPassword error:", error);
+    res.status(500).json({
+      message: "Unable to send reset email right now. Please try again later.",
+    });
   }
 };
 
-//reset password
+// Reset password
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -196,6 +198,10 @@ const resetPassword = async (req, res) => {
 
     if (!newPassword) {
       return res.status(400).json({ message: "New password is required" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
     const hashedToken = crypto
@@ -213,6 +219,7 @@ const resetPassword = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
+
     user.password = hashedPassword;
     user.resetPasswordToken = "";
     user.resetPasswordExpires = undefined;
@@ -221,10 +228,12 @@ const resetPassword = async (req, res) => {
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("resetPassword error:", error);
+    res.status(500).json({ message: "Reset failed" });
   }
 };
 
+// Firebase phone login
 const firebasePhoneLogin = async (req, res) => {
   try {
     const { phone } = req.body;
@@ -276,7 +285,7 @@ module.exports = {
   loginUser,
   getProfile,
   updateProfile,
-  firebasePhoneLogin,
   forgotPassword,
   resetPassword,
+  firebasePhoneLogin,
 };
